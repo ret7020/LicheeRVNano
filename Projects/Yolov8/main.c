@@ -1,4 +1,3 @@
-#define _GNU_SOURCE
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
@@ -14,6 +13,12 @@
 #include "cvi_tdl.h"
 #include "cvi_tdl_media.h"
 
+#define MODEL_SCALE 0.003922
+#define MODEL_MEAN 0.0
+#define MODEL_CLASS_CNT 1
+#define MODEL_THRESH 0.5
+#define MODEL_NMS_THRESH 0.5
+
 // set preprocess and algorithm param for yolov8 detection
 // if use official model, no need to change param
 CVI_S32 init_param(const cvitdl_handle_t tdl_handle)
@@ -25,8 +30,8 @@ CVI_S32 init_param(const cvitdl_handle_t tdl_handle)
     for (int i = 0; i < 3; i++)
     {
         printf("asign val %d \n", i);
-        preprocess_cfg.factor[i] = 0.003922;
-        preprocess_cfg.mean[i] = 0.0;
+        preprocess_cfg.factor[i] = MODEL_SCALE;
+        preprocess_cfg.mean[i] = MODEL_MEAN;
     }
     preprocess_cfg.format = PIXEL_FORMAT_RGB_888_PLANAR;
 
@@ -42,7 +47,7 @@ CVI_S32 init_param(const cvitdl_handle_t tdl_handle)
     // setup yolo algorithm preprocess
     YoloAlgParam yolov8_param =
         CVI_TDL_Get_YOLO_Algparam(tdl_handle, CVI_TDL_SUPPORTED_MODEL_YOLOV8_DETECTION);
-    yolov8_param.cls = 80;
+    yolov8_param.cls = MODEL_CLASS_CNT;
 
     printf("setup yolov8 algorithm param \n");
     ret =
@@ -54,8 +59,8 @@ CVI_S32 init_param(const cvitdl_handle_t tdl_handle)
     }
 
     // set theshold
-    CVI_TDL_SetModelThreshold(tdl_handle, CVI_TDL_SUPPORTED_MODEL_YOLOV8_DETECTION, 0.5);
-    CVI_TDL_SetModelNmsThreshold(tdl_handle, CVI_TDL_SUPPORTED_MODEL_YOLOV8_DETECTION, 0.5);
+    CVI_TDL_SetModelThreshold(tdl_handle, CVI_TDL_SUPPORTED_MODEL_YOLOV8_DETECTION, MODEL_THRESH);
+    CVI_TDL_SetModelNmsThreshold(tdl_handle, CVI_TDL_SUPPORTED_MODEL_YOLOV8_DETECTION, MODEL_NMS_THRESH);
 
     printf("yolov8 algorithm parameters setup success!\n");
     return ret;
@@ -82,14 +87,9 @@ int main(int argc, char *argv[])
     }
 
     std::string strf1(argv[2]);
-    int eval_perf = 0;
-    if (argc > 3)
-    {
-        eval_perf = atoi(argv[3]);
-    }
 
     // change param of yolov8_detection
-    // ret = init_param(tdl_handle);
+    ret = init_param(tdl_handle);
 
     printf("---------------------openmodel-----------------------");
     CVI_TDL_SetModelThreshold(tdl_handle, CVI_TDL_SUPPORTED_MODEL_YOLOV8_DETECTION, 0.5);
@@ -118,7 +118,7 @@ int main(int argc, char *argv[])
         printf("image read,width:%d\n", bg.stVFrame.u32Width);
         printf("image read,hidth:%d\n", bg.stVFrame.u32Height);
     }
-    std::string str_res;
+
     cvtdl_object_t obj_meta = {0};
 
     for (int i = 0; i <= 10; i++)
@@ -126,30 +126,16 @@ int main(int argc, char *argv[])
         std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
         CVI_TDL_YOLOV8_Detection(tdl_handle, &bg, &obj_meta);
         std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
-        printf("Frame -> od_results latency: %lf\n", std::chrono::duration<double>(end - begin).count());
+        auto latency = std::chrono::duration<double>(end - begin).count();
+        printf("Latency: %lf; FPS ~ %.1lf\n", latency, 1.0 / latency);
     }
 
-    std::cout << "objnum:" << obj_meta.size << std::endl;
-    std::stringstream ss;
-    ss << "boxes=[";
+    printf("Detected objects cnt: %d\nBoxes:", obj_meta.size);
     for (uint32_t i = 0; i < obj_meta.size; i++)
     {
-        ss << "[" << obj_meta.info[i].bbox.x1 << "," << obj_meta.info[i].bbox.y1 << ","
-           << obj_meta.info[i].bbox.x2 << "," << obj_meta.info[i].bbox.y2 << ","
-           << obj_meta.info[i].classes << "," << obj_meta.info[i].bbox.score << "],";
+        printf("x1 = %lf, y1 = %lf, x2 = %lf, y2 = %lf, cls: %d, score: %lf\n", obj_meta.info[i].bbox.x1, obj_meta.info[i].bbox.y1, obj_meta.info[i].bbox.x2, obj_meta.info[i].bbox.y2, obj_meta.info[i].classes, obj_meta.info[i].bbox.score);
     }
-    ss << "]\n";
-    std::cout << ss.str();
-    CVI_TDL_Free(&obj_meta);
-    if (eval_perf)
-    {
-        for (int i = 0; i < 101; i++)
-        {
-            cvtdl_object_t obj_meta = {0};
-            CVI_TDL_PersonPet_Detection(tdl_handle, &bg, &obj_meta);
-            CVI_TDL_Free(&obj_meta);
-        }
-    }
+    
     CVI_TDL_ReleaseImage(img_handle, &bg);
     CVI_TDL_DestroyHandle(tdl_handle);
     CVI_TDL_Destroy_ImageProcessor(img_handle);
