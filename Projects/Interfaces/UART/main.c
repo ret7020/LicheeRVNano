@@ -5,11 +5,11 @@
 #include <termios.h>
 #include <unistd.h>
 
-#define UART_PATH "/dev/ttyS0"
+#define UART_PATH "/dev/ttyS2"
 
 int main()
 {
-	printf("UART test\n");
+	printf("UART test %s\n", UART_PATH);
 	char serialPort[] = UART_PATH;
 	char txBuf[] = "abcd";
 	struct termios tty;
