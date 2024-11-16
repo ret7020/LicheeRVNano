@@ -101,4 +101,44 @@ int setPin(int pin, int value)
     return exportPin(pin) + setDirPin(pin, "out") + writePin(pin, value) + releasePin(pin);
 }
 
+int pwmExport(int pin){
+    FILE *exportFile = fopen("/sys/class/pwm/pwmchip4/export", "w");
+    if (exportFile == NULL)
+        return -1;
+    fprintf(exportFile, "%d", pin);
+    fclose(exportFile);
+
+    return 0;
+
+}
+
+int pwmSetParam(int pin, int val, int type){
+    // type == 0: set pwm period
+    // type == 1: set pwm duty cycle
+    // type == 2: set enable/disable (1/0)
+    char typeMap[3][15] = {"period", "duty_cycle", "enable"};
+    char valPath[50];
+    snprintf(valPath, sizeof(valPath), "/sys/class/pwm/pwmchip4/pwm%d/%s", pin, typeMap[type]);
+    printf("Path: %s\n", valPath);
+
+    FILE *exportFile = fopen(valPath, "w");
+    if (exportFile == NULL)
+        return -1;
+    fprintf(exportFile, "%d", val);
+    fclose(exportFile);
+
+    return 0;
+}
+
+int pwmUnexport(int pin){
+    FILE *exportFile = fopen("/sys/class/pwm/pwmchip4/unexport", "w");
+    if (exportFile == NULL)
+        return -1;
+    fprintf(exportFile, "%d", pin);
+    fclose(exportFile);
+
+    return 0;
+
+}
+
 #endif
