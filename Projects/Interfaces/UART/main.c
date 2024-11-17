@@ -7,6 +7,16 @@
 
 #define UART_PATH "/dev/ttyS2"
 
+/* If you use official OS img
+    Configure system for UART usage
+	devmem 0x03001070 b 0x2 # GPIOA 28 UART2 TX
+	devmem 0x03001074 b 0x2 # GPIOA 29 UART2 RX
+	devmem 0x03001068 b 0x6 # GPIOA 18 UART1 RX
+	devmem 0x03001064 b 0x6 # GPIOA 19 UART1 TX
+
+	You can get devmem tool from Tools/ directory of this repo
+ */
+
 int main()
 {
 	printf("UART test %s\n", UART_PATH);
