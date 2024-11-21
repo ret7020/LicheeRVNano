@@ -4,7 +4,7 @@
 
 
 ## PWM pins
-You can use 2 pwm pins on the board: `PWM7` and `PWM6`, connected to `pwmchip4`.
+You can use 2 pwm pins on the board: `PWM7` and `PWM6`, connected to `pwmchip4`. Use pwmTest.c to test (compile with: `make build_pwm`)
 
 
 ## Pin Map
