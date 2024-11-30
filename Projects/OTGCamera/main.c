@@ -5,7 +5,12 @@
 #include <sys/ioctl.h>
 #include <sys/mman.h>
 #include <cstring>
-#include <iostream>
+#include <chrono>
+
+#define DEBUG
+#define IMAGE_WIDTH 640
+#define IMAGE_HEIGHT 480
+#define DEVICE "/dev/video0"
 
 struct Buffer
 {
@@ -16,7 +21,7 @@ struct Buffer
 
 int main()
 {
-	const char *device = "/dev/video0";
+	const char *device = DEVICE;
 	int fd = open(device, O_RDWR);
 	if (fd == -1)
 	{
@@ -31,17 +36,16 @@ int main()
 		close(fd);
 		return -1;
 	}
-	std::cout << "Driver: " << cap.driver << "\n"
-			  << "Card: " << cap.card << "\n"
-			  << "Version: " << ((cap.version >> 16) & 0xFF) << "."
-			  << ((cap.version >> 8) & 0xFF) << "."
-			  << (cap.version & 0xFF) << "\n";
+#ifdef DEBUG
+	printf("Driver: %s\nCard: %s\nVersion: %d.%d.%d", cap.driver, cap.card,
+		   ((cap.version >> 16) & 0xFF), ((cap.version >> 8) & 0xFF), (cap.version & 0xFF));
+#endif
 
 	struct v4l2_format fmt;
 	CLEAR(fmt);
 	fmt.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-	fmt.fmt.pix.width = 640;  // Image width
-	fmt.fmt.pix.height = 480; // Image height
+	fmt.fmt.pix.width = IMAGE_WIDTH;   // Image width
+	fmt.fmt.pix.height = IMAGE_HEIGHT; // Image height
 	fmt.fmt.pix.pixelformat = V4L2_PIX_FMT_YUYV;
 	fmt.fmt.pix.field = V4L2_FIELD_INTERLACED;
 
@@ -100,12 +104,15 @@ int main()
 	}
 
 	// Capture loop
+	cv::Mat yuyv(IMAGE_HEIGHT, IMAGE_WIDTH, CV_8UC2, buffer.start);
+	cv::Mat bgr;
+	auto last = std::chrono::steady_clock::now();
+	auto curr = std::chrono::steady_clock::now();
 	while (true)
 	{
 		CLEAR(buf);
 		buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
 		buf.memory = V4L2_MEMORY_MMAP;
-		
 
 		if (ioctl(fd, VIDIOC_QBUF, &buf) == -1)
 		{
@@ -118,10 +125,12 @@ int main()
 			perror("Dequeue Buffer");
 			break;
 		}
-		printf("Buffer here\n");
-		cv::Mat yuyv(480, 640, CV_8UC2, buffer.start);
-        cv::Mat bgr;
-        cv::cvtColor(yuyv, bgr, cv::COLOR_YUV2BGR_YUYV);
+		
+		cv::cvtColor(yuyv, bgr, cv::COLOR_YUV2BGR_YUYV);
+		curr = std::chrono::steady_clock::now();
+		printf("Frame latency: %lf\n", std::chrono::duration<double>(curr - last).count());
+		last = curr;
+		cv::imwrite("res.jpg", bgr);
 	}
 
 	return 0;
