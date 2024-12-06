@@ -1,0 +1,33 @@
+diff --git a/modules/highgui/src/capture_cvi.cpp b/modules/highgui/src/capture_cvi.cpp
+index bcc475f..b08d7ba 100644
+--- a/modules/highgui/src/capture_cvi.cpp
++++ b/modules/highgui/src/capture_cvi.cpp
+@@ -2547,7 +2547,7 @@ static const struct sns_ini_cfg* get_sns_ini_cfg()
+             4,  // bus_id
+             29, // sns_i2c_addr
+             0,  // mipi_dev
+-            {2, 1, 0, -1, -1},  // lane_id
++            {4, 3, 2, -1, -1},  // lane_id
+             {0, 0, 0, 0, 0},    // pn_swap
+             true,   // mclk_en
+             0       // mclk
+diff --git a/options.txt b/options.txt
+index c1317e4..ec7250a 100644
+--- a/options.txt
++++ b/options.txt
+@@ -33,7 +33,7 @@
+ -DWITH_GDCM=OFF
+ -DWITH_TBB=OFF
+ -DWITH_HPX=OFF
+--DWITH_OPENMP=ON
++-DWITH_OPENMP=OFF
+ -DWITH_PTHREADS_PF=OFF
+ -DWITH_V4L=OFF
+ -DWITH_CLP=OFF
+@@ -88,3 +88,6 @@
+ -DBUILD_opencv_objdetect=OFF
+ -DBUILD_opencv_stitching=OFF
+ -DBUILD_opencv_ml=OFF
++-DWITH_CVI=ON
++-DOPENCV_DISABLE_THREAD_SUPPORT=ON
++-DOPENCV_DISABLE_FILESYSTEM_SUPPORT=ON
