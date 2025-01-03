@@ -1,0 +1,1 @@
+qemu-system-riscv64 -machine virt -nographic -m 4096 -smp 4 -bios boot/fw_jump.elf -kernel boot/uboot.elf -device virtio-net-device,netdev=eth0 -netdev user,id=eth0 -drive file=boot/ubuntu-24.10.img,format=raw,if=virtio -drive file=myVirtualDisk.qcow2,format=qcow2,if=virtio
