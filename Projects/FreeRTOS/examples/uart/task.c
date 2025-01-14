@@ -35,6 +35,7 @@ void app_task_demo(void *param)
 				;
 			uart->rbr = 'Z';
 		}
+		vTaskDelay(200); // 1 second
 
 	}
 }
