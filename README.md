@@ -10,6 +10,9 @@
     - [YoloV8](Projects/Yolov8)
     - [YoloV8_Fast_Test](Projects/Yolov8)
 
+## Useful links
+- [Power usage tests](https://docs.google.com/document/d/1rqYGW91RLbdtiySxgSRCPxvIl0TrY_t7PZlEEJFMUWQ/edit?usp=sharing)
+
 ## Building examples
 Examples located in [Projects](Projects/). Each project/dir have a Makefile that have a build directive to compile project. It use `${COMPILER}/riscv64-unknown-linux-musl-g++` as compiler; so assing env variable COMPILER with path to SDK location.
 
