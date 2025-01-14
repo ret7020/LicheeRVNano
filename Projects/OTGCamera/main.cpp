@@ -130,7 +130,7 @@ int main()
 		curr = std::chrono::steady_clock::now();
 		printf("Frame latency: %lf\n", std::chrono::duration<double>(curr - last).count());
 		last = curr;
-		cv::imwrite("res.jpg", bgr);
+		// cv::imwrite("res.jpg", bgr);
 	}
 
 	return 0;
