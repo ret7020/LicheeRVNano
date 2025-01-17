@@ -1,17 +1,16 @@
+// INCLUDES
+#include "hal_uart_dw.h"
+/*
+...
+*/
+
+// TASK source
 void app_task_demo(void *param)
 {
-	uint8_t PIN = 15; // Addr 0x0300103C
-
-	uint8_t PORT = PORT_A;
-	mmio_write_32(0x0300103C, 0x3); // GPIOA 15 GPIO_MODE
-	pinMode(PORT, PIN, GPIO_OUTPUT);
-
-	printf("Port %d, pin %d\n", PORT, PIN);
-
 	// HAL UART1 test
 
-	mmio_write_32(0x03001064, 0x6); // TX TO USE UART1 TX pin on board
-					// RX 0x03001064  0x6
+	mmio_write_32(0x03001064, 0x6); // TX; UART1 on pins 18,19
+	mmio_write_32(0x03001068, 0x6); // RX 0x03001068 0x6
 
 	static struct dw_regs *uart = 0;
 	int baudrate = 115200, uart_clock = 25 * 1000 * 1000;
@@ -31,18 +30,12 @@ void app_task_demo(void *param)
 	uart->lcr = 3;
 
 	while (1) {
-		writePin(PORT, PIN, GPIO_HIGH);
-		vTaskDelay(50);
-
-		writePin(PORT, PIN, GPIO_LOW);
-		vTaskDelay(50);
-
 		for (int i = 0; i < 10; i++) {
 			while (!(uart->lsr & UART_LSR_THRE))
 				;
 			uart->rbr = 'Z';
 		}
+		vTaskDelay(200); // 1 second
 
-		printf("Hello RISC-V from the small core!\r\n");
 	}
 }
