@@ -1,5 +1,7 @@
 # YoloV8 tests
 
+Required dynamic libs (.so) can be downloaded [here](https://drive.google.com/file/d/1ZM2aeyJBJViDAIc7k13jI9BEQCafPyvE/view?usp=sharing). After downloading to board and extracting zip use `board_setup.sh` to set `LD_LIBRARY_PATH`
+
 It is raw tests, makefile is awful for now.
 
 How to compile:
