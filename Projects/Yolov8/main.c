@@ -12,12 +12,13 @@
 #include "core/utils/vpss_helper.h"
 #include "cvi_tdl.h"
 #include "cvi_tdl_media.h"
+#include <dirent.h>
 
-#define MODEL_SCALE 0.003922
+#define MODEL_SCALE 0.0039216
 #define MODEL_MEAN 0.0
-#define MODEL_CLASS_CNT 1
-#define MODEL_THRESH 0.5
-#define MODEL_NMS_THRESH 0.5
+#define MODEL_CLASS_CNT 80
+#define MODEL_THRESH 0.8
+#define MODEL_NMS_THRESH 0.8
 
 // set preprocess and algorithm param for yolov8 detection
 // if use official model, no need to change param
@@ -89,11 +90,11 @@ int main(int argc, char *argv[])
     std::string strf1(argv[2]);
 
     // change param of yolov8_detection
-    ret = init_param(tdl_handle);
+    // ret = init_param(tdl_handle);
 
     printf("---------------------openmodel-----------------------");
-    CVI_TDL_SetModelThreshold(tdl_handle, CVI_TDL_SUPPORTED_MODEL_YOLOV8_DETECTION, 0.5);
-    CVI_TDL_SetModelNmsThreshold(tdl_handle, CVI_TDL_SUPPORTED_MODEL_YOLOV8_DETECTION, 0.5);
+    // CVI_TDL_SetModelThreshold(tdl_handle, CVI_TDL_SUPPORTED_MODEL_YOLOV8_DETECTION, 0.5);
+    // CVI_TDL_SetModelNmsThreshold(tdl_handle, CVI_TDL_SUPPORTED_MODEL_YOLOV8_DETECTION, 0.5);
     ret = CVI_TDL_OpenModel(tdl_handle, CVI_TDL_SUPPORTED_MODEL_YOLOV8_DETECTION, argv[1]);
 
     if (ret != CVI_SUCCESS)
@@ -120,22 +121,16 @@ int main(int argc, char *argv[])
     }
 
     cvtdl_object_t obj_meta = {0};
-
-    for (int i = 0; i <= 10; i++)
-    {
-        std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
-        CVI_TDL_YOLOV8_Detection(tdl_handle, &bg, &obj_meta);
-        std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
-        auto latency = std::chrono::duration<double>(end - begin).count();
-        printf("Latency: %lf; FPS ~ %.1lf\n", latency, 1.0 / latency);
-    }
-
-    printf("Detected objects cnt: %d\nBoxes:", obj_meta.size);
+    std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
+    CVI_TDL_YOLOV8_Detection(tdl_handle, &bg, &obj_meta);
+    std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+    double fps = 1 / std::chrono::duration<double>(end - begin).count();
+    printf("\n\n----------\nDetection FPS: %lf\nDetected objects cnt: %d\n\nDetected objects:\n", fps, obj_meta.size);
     for (uint32_t i = 0; i < obj_meta.size; i++)
     {
         printf("x1 = %lf, y1 = %lf, x2 = %lf, y2 = %lf, cls: %d, score: %lf\n", obj_meta.info[i].bbox.x1, obj_meta.info[i].bbox.y1, obj_meta.info[i].bbox.x2, obj_meta.info[i].bbox.y2, obj_meta.info[i].classes, obj_meta.info[i].bbox.score);
     }
-    
+
     CVI_TDL_ReleaseImage(img_handle, &bg);
     CVI_TDL_DestroyHandle(tdl_handle);
     CVI_TDL_Destroy_ImageProcessor(img_handle);
