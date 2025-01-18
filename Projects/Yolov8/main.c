@@ -12,7 +12,6 @@
 #include "core/utils/vpss_helper.h"
 #include "cvi_tdl.h"
 #include "cvi_tdl_media.h"
-#include <dirent.h>
 
 #define MODEL_SCALE 0.0039216
 #define MODEL_MEAN 0.0
@@ -21,7 +20,7 @@
 #define MODEL_NMS_THRESH 0.8
 
 // set preprocess and algorithm param for yolov8 detection
-// if use official model, no need to change param
+// if use official model, no need to change param (call this function)
 CVI_S32 init_param(const cvitdl_handle_t tdl_handle)
 {
     // setup preprocess
@@ -90,11 +89,8 @@ int main(int argc, char *argv[])
     std::string strf1(argv[2]);
 
     // change param of yolov8_detection
-    // ret = init_param(tdl_handle);
+    ret = init_param(tdl_handle);
 
-    printf("---------------------openmodel-----------------------");
-    // CVI_TDL_SetModelThreshold(tdl_handle, CVI_TDL_SUPPORTED_MODEL_YOLOV8_DETECTION, 0.5);
-    // CVI_TDL_SetModelNmsThreshold(tdl_handle, CVI_TDL_SUPPORTED_MODEL_YOLOV8_DETECTION, 0.5);
     ret = CVI_TDL_OpenModel(tdl_handle, CVI_TDL_SUPPORTED_MODEL_YOLOV8_DETECTION, argv[1]);
 
     if (ret != CVI_SUCCESS)
@@ -102,8 +98,6 @@ int main(int argc, char *argv[])
         printf("open model failed with %#x!\n", ret);
         return ret;
     }
-    printf("---------------------to do detection-----------------------\n");
-
     imgprocess_t img_handle;
     CVI_TDL_Create_ImageProcessor(&img_handle);
 
