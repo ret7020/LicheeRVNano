@@ -111,6 +111,7 @@ int main(int argc, char *argv[])
     double fps_min = 1000.0;
     double fps_max = 0.0;
     int counter = 0;
+    int frame_h = 0, frame_w = 0;
 
     while ((dp = readdir(dirp)) != NULL) {
 	if (!strcmp(dp->d_name, "..") || !strcmp(dp->d_name, ".")) continue; // Skip ../ path
@@ -126,13 +127,15 @@ int main(int argc, char *argv[])
         fps_sum += fps;
         fps_max = std::max(fps_max, fps);
         fps_min = std::min(fps_min, fps);
+        frame_h = bg.stVFrame.u32Height;
+        frame_w = bg.stVFrame.u32Width;
 
         printf("IMG %s, %d: %lf\n", dp->d_name, counter, fps);
         counter++;
         CVI_TDL_ReleaseImage(img_handle, &bg);
     }
     fps_sum = fps_sum / counter;
-    printf("\n\n-------\nProcessed images: %d\nAVG FPS: %lf\nMin FPS: %lf\nMax FPS: %lf\n-------\n", counter, fps_sum, fps_min, fps_max);
+    printf("\n\n-------\nProcessed images: %d\nFrame size: %dx%d\nAVG FPS: %lf\nMin FPS: %lf\nMax FPS: %lf\n-------\n", counter, frame_h, frame_w, fps_sum, fps_min, fps_max);
 
     CVI_TDL_Destroy_ImageProcessor(img_handle);
     CVI_TDL_DestroyHandle(tdl_handle);
