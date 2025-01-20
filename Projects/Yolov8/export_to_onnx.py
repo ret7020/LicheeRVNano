@@ -2,7 +2,7 @@ from ultralytics import YOLO
 import types
 import sys
 
-input_size = (640, 640)
+input_size = (int(sys.argv[2]), int(sys.argv[3]))
 
 def forward2(self, x):
   x_reg = [self.cv2[i](x[i]) for i in range(self.nl)]
