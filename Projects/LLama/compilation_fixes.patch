@@ -1,0 +1,29 @@
+diff --git a/Makefile b/Makefile
+index 6fdf747..298db10 100644
+--- a/Makefile
++++ b/Makefile
+@@ -1,11 +1,11 @@
+ # choose your compiler, e.g. gcc/clang
+ # example override to clang: make run CC=clang
+-CC = gcc
++CC = $(COMPILER)/riscv64-unknown-linux-musl-gcc
+ 
+ # the most basic way of building that is most likely to work on most systems
+ .PHONY: run
+ run: run.c
+-	$(CC) -O3 -o run run.c -lm
++	$(CC) -O3 -Ofast -fopenmp -march=rv64imafd -DC906 -funroll-all-loops -o run run.c -lm --static
+ 	$(CC) -O3 -o runq runq.c -lm
+ 
+ # useful for a debug build, can then e.g. analyze with valgrind, example:
+diff --git a/run.c b/run.c
+index 2fcd687..f43b0e1 100644
+--- a/run.c
++++ b/run.c
+@@ -1,5 +1,5 @@
+ /* Inference for Llama-2 Transformer model in pure C */
+-
++#include <stdint.h>
+ #include <stdio.h>
+ #include <stdlib.h>
+ #include <ctype.h>

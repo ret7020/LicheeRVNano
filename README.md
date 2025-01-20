@@ -5,10 +5,21 @@
 
 - Interfaces
     - [UART](Projects/Interfaces/UART)
-    
+
+- CSI Camera
+    - [OpenCV + CSI read](Projects/OpenCV_CSI_Camera)
+    - [Stream CSI to MJPEG](Projects/MJPEGStream)
+
 - NN
     - [YoloV8](Projects/Yolov8)
     - [YoloV8_Fast_Test](Projects/Yolov8)
+    - [Yolo Benchmark](Projects/Yolo_Benchmark)
+    - [LLama](Projects/LLama)
+
+- Other
+    - [FreeRTOS](Projects/FreeRTOS)
+    - [Docker](Projects/Docker)
+    - [Hello world](Projects/HelloWorld)
 
 ## Useful links
 - [Power usage tests](https://docs.google.com/document/d/1rqYGW91RLbdtiySxgSRCPxvIl0TrY_t7PZlEEJFMUWQ/edit?usp=sharing)
