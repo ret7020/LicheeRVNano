@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <time.h>
 #include <chrono>
 #include <functional>
@@ -16,11 +17,19 @@
 
 #define MODEL_SCALE 0.0039216
 #define MODEL_MEAN 0.0
-#define MODEL_CLASS_CNT 80
-#define MODEL_THRESH 0.8
-#define MODEL_NMS_THRESH 0.8
+#define MODEL_THRESH 0.5
+#define MODEL_NMS_THRESH 0.5
 
-CVI_S32 init_param(const cvitdl_handle_t tdl_handle)
+#define READ_BUFF 512
+
+typedef struct
+{
+    char * model_path;
+    int classes;
+    char * test_images_path;
+} Model;
+
+CVI_S32 init_param(const cvitdl_handle_t tdl_handle, int class_cnt)
 {
     // setup preprocess
     YoloPreParam preprocess_cfg =
@@ -46,7 +55,7 @@ CVI_S32 init_param(const cvitdl_handle_t tdl_handle)
     // setup yolo algorithm preprocess
     YoloAlgParam yolov8_param =
         CVI_TDL_Get_YOLO_Algparam(tdl_handle, CVI_TDL_SUPPORTED_MODEL_YOLOV8_DETECTION);
-    yolov8_param.cls = MODEL_CLASS_CNT;
+    yolov8_param.cls = class_cnt;
 
     printf("setup yolov8 algorithm param \n");
     ret =
@@ -71,71 +80,94 @@ int main(int argc, char *argv[])
     int vpssgrp_height = 1080;
     CVI_S32 ret = MMF_INIT_HELPER2(vpssgrp_width, vpssgrp_height, PIXEL_FORMAT_RGB_888, 1,
                                    vpssgrp_width, vpssgrp_height, PIXEL_FORMAT_RGB_888, 1);
-    if (ret != CVI_TDL_SUCCESS)
-    {
-        printf("Init sys failed with %#x!\n", ret);
-        return ret;
-    }
+    if (ret != CVI_TDL_SUCCESS) { return ret; }
 
     cvitdl_handle_t tdl_handle = NULL;
     ret = CVI_TDL_CreateHandle(&tdl_handle);
-    if (ret != CVI_SUCCESS)
-    {
-        printf("Create tdl handle failed with %#x!\n", ret);
-        return ret;
-    }
-
-    // change param of yolov8_detection
-    ret = init_param(tdl_handle);
-
-    printf("---------------------openmodel-----------------------");
-    ret = CVI_TDL_OpenModel(tdl_handle, CVI_TDL_SUPPORTED_MODEL_YOLOV8_DETECTION, argv[1]);
-
-    if (ret != CVI_SUCCESS)
-    {
-        printf("open model failed with %#x!\n", ret);
-        return ret;
-    }
-    printf("---------------------to do detection-----------------------\n");
-
-
+    if (ret != CVI_SUCCESS) {return ret;}
 
     imgprocess_t img_handle;
     CVI_TDL_Create_ImageProcessor(&img_handle);
+    
 
+    char filename[] = "config.txt";
+    char buffer[READ_BUFF];
+    FILE *fp = fopen(filename, "r");
+    if (fp)
+    {
+        while ((fgets(buffer, READ_BUFF, fp)) != NULL)
+        {
+            if (buffer[0] != '#'){
+                char* token = strtok(buffer, " ");
+                int index = 0;
+                Model tmp = {filename, 2, filename};
+                while (token != NULL) {
 
-    DIR* dirp = opendir(argv[2]);
-    struct dirent * dp;
-    double fps = 0.0;
-    double fps_sum = 0.0;
-    double fps_min = 1000.0;
-    double fps_max = 0.0;
-    int counter = 0;
-    int frame_h = 0, frame_w = 0;
+                    switch (index)
+                    {
+                        case 0:
+                            tmp.model_path = token;
+                            break;
+                        case 1:
+                            tmp.classes = atoi(token);
+                            break;
+                        case 2:
+                            token[strlen(token) - 1] = '\0';
+                            tmp.test_images_path = token;
+                    }
+                    token = strtok(NULL, " ");
+                    index++;
+                }
+                printf("%s:%d:%s\n", tmp.model_path, tmp.classes, tmp.test_images_path);
+                ret = init_param(tdl_handle, tmp.classes);
+                ret = CVI_TDL_OpenModel(tdl_handle, CVI_TDL_SUPPORTED_MODEL_YOLOV8_DETECTION, tmp.model_path);
+                if (ret != CVI_SUCCESS) { return ret; }
 
-    while ((dp = readdir(dirp)) != NULL) {
-	if (!strcmp(dp->d_name, "..") || !strcmp(dp->d_name, ".")) continue; // Skip ../ path
-        VIDEO_FRAME_INFO_S bg;
-        char absFilePath[512];
-        sprintf(absFilePath, "%s/%s", argv[2], dp->d_name);
-        ret = CVI_TDL_ReadImage(img_handle, absFilePath, &bg, PIXEL_FORMAT_RGB_888_PLANAR);
-        cvtdl_object_t obj_meta = {0};
-        std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
-        CVI_TDL_YOLOV8_Detection(tdl_handle, &bg, &obj_meta);
-        std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
-        fps = 1 / std::chrono::duration<double>(end - begin).count();
-        fps_sum += fps;
-        fps_max = std::max(fps_max, fps);
-        fps_min = std::min(fps_min, fps);
-        frame_h = bg.stVFrame.u32Height;
-        frame_w = bg.stVFrame.u32Width;
+                DIR* dirp = opendir(tmp.test_images_path);
+                if (dirp == NULL) {
+                    perror("opendir failed");
+                    return -1;
+                }
 
-        printf("IMG %s, %d: %lf\n", dp->d_name, counter, fps);
-        counter++;
-        CVI_TDL_ReleaseImage(img_handle, &bg);
+                struct dirent * dp;
+                double fps = 0.0;
+                double fps_sum = 0.0;
+                double fps_min = 1000.0;
+                double fps_max = 0.0;
+                int counter = 0;
+                int frame_h = 0, frame_w = 0;
+                
+                while ((dp = readdir(dirp)) != NULL) {
+                if (!strcmp(dp->d_name, "..") || !strcmp(dp->d_name, ".")) continue; // Skip ../ path
+                    VIDEO_FRAME_INFO_S bg;
+                    char absFilePath[512];
+                    sprintf(absFilePath, "%s/%s", "coco128/", dp->d_name);
+                    
+                    ret = CVI_TDL_ReadImage(img_handle, absFilePath, &bg, PIXEL_FORMAT_RGB_888_PLANAR);
+
+                    cvtdl_object_t obj_meta = {0};
+                    std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
+                    CVI_TDL_YOLOV8_Detection(tdl_handle, &bg, &obj_meta);
+                    std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+                    fps = 1 / std::chrono::duration<double>(end - begin).count();
+                    fps_sum += fps;
+                    fps_max = std::max(fps_max, fps);
+                    fps_min = std::min(fps_min, fps);
+                    frame_h = bg.stVFrame.u32Height;
+                    frame_w = bg.stVFrame.u32Width;
+
+                    printf("IMG %s, %d: %lf\n", dp->d_name, counter, fps);
+                    counter++;
+                    CVI_TDL_ReleaseImage(img_handle, &bg);
+                }
+                fps_sum = fps_sum / counter;
+                printf("\n\n-------\nProcessed images: %d\nFrame size: %dx%d\nAVG FPS: %lf\nMin FPS: %lf\nMax FPS: %lf\n-------\n", counter, frame_h, frame_w, fps_sum, fps_min, fps_max);
+
+            }
+            
+        }
+        fclose(fp);
     }
-    fps_sum = fps_sum / counter;
-    printf("\n\n-------\nProcessed images: %d\nFrame size: %dx%d\nAVG FPS: %lf\nMin FPS: %lf\nMax FPS: %lf\n-------\n", counter, frame_h, frame_w, fps_sum, fps_min, fps_max);
 
     CVI_TDL_Destroy_ImageProcessor(img_handle);
     CVI_TDL_DestroyHandle(tdl_handle);

@@ -1,0 +1,2 @@
+# path to model; classes count; test image path
+./models/yolov8n_coco_640.cvimodel 80 coco128
