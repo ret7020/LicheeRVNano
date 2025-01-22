@@ -40,6 +40,8 @@ typedef struct _TASK_CTX_S {
 	QueueHandle_t queHandle;
 } TASK_CTX_S;
 
+long long lastTick = 0;
+
 /****************************************************************************
  * Function prototypes
  ****************************************************************************/
@@ -207,8 +209,19 @@ void prvCmdQuRunTask(void *pvParameters)
 			case SYS_CMD_INFO_LINUX:
 				/* used to send command to linux*/
 				rtos_cmdqu_t = (cmdqu_t *) mailbox_context;
+				long long currTick = xTaskGetTickCount();
 
-				printf("RTOS_CMDQU_SEND\n");
+				printf("Elapsed: %d\n", currTick - lastTick);
+				lastTick = currTick;
+
+				rtos_cmdq.cmd_id = SYS_CMD_INFO_LINUX;
+				
+				rtos_cmdq.param_ptr = 0x7;
+				rtos_cmdq.resv.valid.rtos_valid = 1;
+				rtos_cmdq.resv.valid.linux_valid = 0;
+
+
+
 				debug_printf("ip_id=%d cmd_id=%d param_ptr=%x\n", cmdq->ip_id, cmdq->cmd_id, (unsigned int)cmdq->param_ptr);
 				debug_printf("mailbox_context = %x\n", mailbox_context);
 				debug_printf("linux_cmdqu_t = %x\n", rtos_cmdqu_t);
@@ -233,13 +246,13 @@ void prvCmdQuRunTask(void *pvParameters)
 								(cmdq->resv.valid.linux_valid << 16) |
 								(cmdq->resv.valid.rtos_valid << 24));
 						rtos_cmdqu_t->param_ptr = cmdq->param_ptr;
-						debug_printf("rtos_cmdqu_t->linux_valid = %d\n", rtos_cmdqu_t->resv.valid.linux_valid);
+						printf("rtos_cmdqu_t->linux_valid = %d\n", rtos_cmdqu_t->resv.valid.linux_valid);
 						debug_printf("rtos_cmdqu_t->rtos_valid = %d\n", rtos_cmdqu_t->resv.valid.rtos_valid);
 						debug_printf("rtos_cmdqu_t->ip_id =%x %d\n", &rtos_cmdqu_t->ip_id, rtos_cmdqu_t->ip_id);
 						debug_printf("rtos_cmdqu_t->cmd_id = %d\n", rtos_cmdqu_t->cmd_id);
 						debug_printf("rtos_cmdqu_t->block = %d\n", rtos_cmdqu_t->block);
-						debug_printf("rtos_cmdqu_t->param_ptr addr=%x %x\n", &rtos_cmdqu_t->param_ptr, rtos_cmdqu_t->param_ptr);
-						debug_printf("*ptr = %x\n", *ptr);
+						printf("rtos_cmdqu_t->param_ptr addr=%x %x\n", &rtos_cmdqu_t->param_ptr, rtos_cmdqu_t->param_ptr);
+						printf("*ptr = %x\n", *ptr);
 						// clear mailbox
 						mbox_reg->cpu_mbox_set[send_to_cpu].cpu_mbox_int_clr.mbox_int_clr = (1 << valid);
 						// trigger mailbox valid to rtos

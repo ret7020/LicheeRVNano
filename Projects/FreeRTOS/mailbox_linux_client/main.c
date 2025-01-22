@@ -8,6 +8,8 @@
 
 enum SYSTEM_CMD_TYPE {
 	CMDQU_SEND = 1,
+	CMDQU_REQUEST,
+	CMDQU_REQUEST_FREE,
 	CMDQU_SEND_WAIT,
 	CMDQU_SEND_WAKEUP,
 };
@@ -25,31 +27,13 @@ enum IP_TYPE {
 };
 
 
-
-
 #define RTOS_CMDQU_DEV_NAME "/dev/cvi-rtos-cmdqu"
 #define RTOS_CMDQU_SEND                         _IOW('r', CMDQU_SEND, unsigned long)
 #define RTOS_CMDQU_SEND_WAIT                    _IOW('r', CMDQU_SEND_WAIT, unsigned long)
 #define RTOS_CMDQU_SEND_WAKEUP                  _IOW('r', CMDQU_SEND_WAKEUP, unsigned long)
 
 enum SYS_CMD_ID {
-	SYS_CMD_INFO_TRANS = 0x50,
-	SYS_CMD_INFO_LINUX_INIT_DONE,
-	SYS_CMD_INFO_RTOS_INIT_DONE,
-	SYS_CMD_INFO_STOP_ISR,
-	SYS_CMD_INFO_STOP_ISR_DONE,
-	SYS_CMD_INFO_LINUX,
-	SYS_CMD_INFO_RTOS,
-	SYS_CMD_SYNC_TIME,
-	SYS_CMD_INFO_DUMP_MSG,
-	SYS_CMD_INFO_DUMP_EN,
-	SYS_CMD_INFO_DUMP_DIS,
-	SYS_CMD_INFO_DUMP_JPG,
-	SYS_CMD_INFO_TRACE_SNAPSHOT_START,
-	SYS_CMD_INFO_TRACE_SNAPSHOT_STOP,
-	SYS_CMD_INFO_TRACE_STREAM_START,
-	SYS_CMD_INFO_TRACE_STREAM_STOP,
-	SYS_CMD_INFO_LIMIT,
+	SYS_CMD_INFO_LINUX = 0x50
 };
 
 
@@ -92,16 +76,31 @@ int main()
     struct cmdqu_t cmd = {0};
     cmd.ip_id = IP_SYSTEM;
     cmd.cmd_id = SYS_CMD_INFO_LINUX;
-    // cmd.resv.mstime = 100;
+    cmd.resv.mstime = 100;
 
-    // cmd.param_ptr = DUO_LED_ON;
-    ret = ioctl(fd , RTOS_CMDQU_SEND, &cmd);
+    cmd.param_ptr = 0x2;
+
+    ret = ioctl(fd , RTOS_CMDQU_SEND_WAIT, &cmd);
     if(ret < 0)
     {
         printf("ioctl error!\n");
         close(fd);
     }
-    sleep(1);
+    printf("%d", cmd.param_ptr); // 0x7 - response from RTOS
+
+    
+    // Speedtest
+    // for (int i = 0; i < 100; i++){
+    //     ret = ioctl(fd , RTOS_CMDQU_SEND, &cmd);
+    //     if(ret < 0)
+    //     {
+    //         printf("ioctl error!\n");
+    //         close(fd);
+    //     }
+    //     // printf("%d\n", cmd.resv);
+    //     usleep(16000);
+    // }
+    
 
     close(fd);
     return 0;
