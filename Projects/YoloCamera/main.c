@@ -75,11 +75,12 @@ int main(int argc, char *argv[])
 
     cv::VideoCapture cap;
     cap.open(0);
+    printf("Pointer for High-Level code: %p\n", cap.image_ptr);
     cv::Mat bgr;
+    cap >> bgr;
+    VIDEO_FRAME_INFO_S *frame_ptr = (VIDEO_FRAME_INFO_S *)cap.image_ptr;
+    VIDEO_FRAME_INFO_S frame = *frame_ptr;
     
-    
-    
-
     CVI_S32 ret;
     // VSSGRP already inited by VideoCapture from OpenCV Mobile, second init will do some strange and cause memory problems
     // int vpssgrp_width = 1920;
@@ -124,13 +125,13 @@ int main(int argc, char *argv[])
     }
     else
     {
-        printf("image read,width:%d\n", bg.stVFrame.u32Width);
-        printf("image read,hidth:%d\n", bg.stVFrame.u32Height);
+        printf("image read,width:%d\n", frame.stVFrame.u32Width);
+        printf("image read,hidth:%d\n", frame.stVFrame.u32Height);
     }
 
     cvtdl_object_t obj_meta = {0};
     std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
-    CVI_TDL_YOLOV8_Detection(tdl_handle, &bg, &obj_meta);
+    CVI_TDL_YOLOV8_Detection(tdl_handle, &frame, &obj_meta);
     std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
     double fps = 1 / std::chrono::duration<double>(end - begin).count();
     printf("\n\n----------\nDetection FPS: %lf\nDetected objects cnt: %d\n\nDetected objects:\n", fps, obj_meta.size);
@@ -147,9 +148,5 @@ int main(int argc, char *argv[])
     CVI_TDL_DestroyHandle(tdl_handle);
     CVI_TDL_Destroy_ImageProcessor(img_handle);
 
-
-    
-
-    
     return ret;
 }
