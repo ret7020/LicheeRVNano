@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
-project(sample_yolov8)
+project(stream_yolov8)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_C_COMPILER "$ENV{COMPILER}/riscv64-unknown-linux-musl-g++")
 SET(CMAKE_CXX_COMPILER "$ENV{COMPILER}/riscv64-unknown-linux-musl-g++")
@@ -27,9 +27,9 @@ set(SOURCE_FILES main.c)
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bin)
 file(MAKE_DIRECTORY ${EXECUTABLE_OUTPUT_PATH})
 
-add_executable(sample_yolov8 ${SOURCE_FILES})
+add_executable(stream_yolov8 MJPEGWriter.cpp ${SOURCE_FILES})
 
-target_link_libraries(sample_yolov8
+target_link_libraries(stream_yolov8
     -mcpu=c906fdv
     -L$ENV{SDK_PATH}/cvitek_tdl_sdk/sample/3rd/middleware/v2/lib
     -L$ENV{SDK_PATH}/cvitek_tdl_sdk/sample/3rd/middleware/v2/lib/3rd
