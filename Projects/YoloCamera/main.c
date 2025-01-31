@@ -117,8 +117,6 @@ int main(int argc, char *argv[])
     // cv::imwrite("captured.jpg", bgr);
     VIDEO_FRAME_INFO_S frame = *frame_ptr;
 
-    std::string strf1(argv[2]);
-
     // change param of yolov8_detection
     ret = init_param(tdl_handle);
 
@@ -146,11 +144,20 @@ int main(int argc, char *argv[])
         for (uint32_t i = 0; i < obj_meta.size; i++)
         {
             // printf("x1 = %lf, y1 = %lf, x2 = %lf, y2 = %lf, cls: %d, score: %lf\n", obj_meta.info[i].bbox.x1, obj_meta.info[i].bbox.y1, obj_meta.info[i].bbox.x2, obj_meta.info[i].bbox.y2, obj_meta.info[i].classes, obj_meta.info[i].bbox.score);
-            cv::Rect r = cv::Rect(obj_meta.info[i].bbox.x1, obj_meta.info[i].bbox.y1, obj_meta.info[i].bbox.x2 - obj_meta.info[i].bbox.x1, obj_meta.info[i].bbox.y2 - obj_meta.info[i].bbox.y1); 
-            if (obj_meta.info[i].classes == 0) cv::rectangle(bgr, r, BLUE_MAT, 1, 8, 0);
-            else if (obj_meta.info[i].classes == 1) cv::rectangle(bgr, r, RED_MAT, 1, 8, 0);
+            cv::Rect r = cv::Rect(obj_meta.info[i].bbox.x1, obj_meta.info[i].bbox.y1, obj_meta.info[i].bbox.x2 - obj_meta.info[i].bbox.x1, obj_meta.info[i].bbox.y2 - obj_meta.info[i].bbox.y1);
 
-            
+            if (obj_meta.info[i].classes == 0)
+                cv::rectangle(bgr, r, BLUE_MAT, 1, 8, 0);
+            else if (obj_meta.info[i].classes == 1)
+                cv::rectangle(bgr, r, RED_MAT, 1, 8, 0);
+
+            cv::putText(bgr,
+                        "Mat",
+                        cv::Point(obj_meta.info[i].bbox.x1, obj_meta.info[i].bbox.y1 - 5),
+                        cv::FONT_HERSHEY_DUPLEX,
+                        1.0,
+                        (obj_meta.info[i].classes == 0) ? BLUE_MAT : RED_MAT,
+                        1);
         }
         test.write(bgr);
         bgr.release();
