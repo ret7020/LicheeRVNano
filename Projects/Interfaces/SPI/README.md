@@ -7,3 +7,7 @@
 ./devmem 0x030010E0 b 0x1 # GPIO P22 MOSI
 ./devmem 0x030010E4 b 0x1 # GPIO P23 SCK
 ```
+
+`enable_spi2.sh` - use pins as SPI2
+
+`enable_wifi.sh` - use pins as WiFi module
