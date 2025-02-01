@@ -5,15 +5,23 @@
 
 - Interfaces
     - [UART](Projects/Interfaces/UART)
+    - [SPI](Projects/Interfaces/SPI)
+    - [I2C](Projects/Interfaces/I2C)
+    - [GPIO](Projects/GPIO)
+    - - [Interrupts handling](Projects/Interrupts)
 
 - CSI Camera
     - [OpenCV + CSI read](Projects/OpenCV_CSI_Camera)
     - [Stream CSI to MJPEG](Projects/MJPEGStream)
 
+- OTG Camera
+    - [Read USB camera](Projects/OTGCamera)
+
 - NN
     - [YoloV8](Projects/Yolov8)
     - [YoloV8_Fast_Test](Projects/Yolov8)
     - [Yolo Benchmark](Projects/Yolo_Benchmark)
+    - [Yolo Camera](Projects/YoloCamera)
     - [LLama](Projects/LLama)
 
 - Other
