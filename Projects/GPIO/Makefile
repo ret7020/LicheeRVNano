@@ -1,7 +1,7 @@
 build_digital:
 	mkdir -p bin
 	echo Using: ${COMPILER}
-	${COMPILER}/riscv64-unknown-linux-musl-g++ main.c -o ./bin/gpioTool 
+	${COMPILER}/riscv64-unknown-linux-musl-g++ digitalTest.c -o ./bin/gpioTool 
 
 build_pwm: 
 	mkdir -p bin
