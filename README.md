@@ -1,12 +1,16 @@
 # LicheeRV Nano Examples
 ![IMG_20241110_214338](https://github.com/user-attachments/assets/bbc0e666-5dd2-4052-b9cc-615e3a9bda76)
 
+This repo stores examples for [this article (Russian)](https://habr.com/ru/articles/880230/). I also started translating it into English, the first part is available on [medium](https://medium.com/@ret7020/licheerv-nano-ai-board-first-steps-d05e7999dd29)
+
 ## Repo structure
 
 - Interfaces
     - [UART](Projects/Interfaces/UART)
+    - [UART](Projects/Interfaces/UART_RX)
     - [SPI](Projects/Interfaces/SPI)
     - [I2C](Projects/Interfaces/I2C)
+    - [SPI and I2C BitBanging](Projects/Interfaces/BitBanging)
     - [GPIO](Projects/GPIO)
     - - [Interrupts handling](Projects/Interrupts)
 
