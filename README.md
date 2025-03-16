@@ -1,7 +1,7 @@
 # LicheeRV Nano Examples
 ![IMG_20241110_214338](https://github.com/user-attachments/assets/bbc0e666-5dd2-4052-b9cc-615e3a9bda76)
 
-This repo stores examples for [this article (Russian)](https://habr.com/ru/articles/880230/). I also started translating it into English, the first part is available on [medium](https://medium.com/@ret7020/licheerv-nano-ai-board-first-steps-d05e7999dd29)
+This repo stores examples for [this article (Russian)](https://habr.com/ru/articles/880230/). I also started translating it into English, the first part is available on [medium](https://medium.com/@ret7020/licheerv-nano-ai-board-first-steps-d05e7999dd29). Also you can read article Russian version outside habr in md format [here](https://github.com/ret7020/LicheeRVNanoArticle).
 
 ## Repo structure
 
