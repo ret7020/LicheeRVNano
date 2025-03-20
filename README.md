@@ -27,6 +27,11 @@ This repo stores examples for [this article (Russian)](https://habr.com/ru/artic
     - [Yolo Benchmark](Projects/Yolo_Benchmark)
     - [Yolo Camera](Projects/YoloCamera)
     - [LLama](Projects/LLama)
+    - [Custom models](Projects/CustomModels)
+    - - [DQN](Projects/CustomModels/DQN)
+
+- Hardware accelerated
+    - []
 
 - Other
     - [FreeRTOS](Projects/FreeRTOS)

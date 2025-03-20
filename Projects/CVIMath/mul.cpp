@@ -7,6 +7,9 @@
 #include <sys/time.h>
 #include <time.h>
 
+
+int gl_elapsed;
+
 static void gen_matrix(uint16_t *matrix, size_t size)
 {
     float t;
@@ -23,7 +26,7 @@ static void gen_matrix(uint16_t *matrix, size_t size)
 }
 
 static cvk_mg_t *alloc_on_npu(CVI_RT_HANDLE *rt_ctx, size_t row, size_t col,
-                              cvk_fmt_t mg_data_format, uint8_t data[])
+                            cvk_fmt_t mg_data_format, uint8_t data[])
 {
     cvk_mg_shape_t s;
     s.row = row;
@@ -67,6 +70,7 @@ static int test_gemm_bf16(size_t M, size_t N, size_t K)
     test_submit_comp(&ctx, bk_ctx); // mul
     gettimeofday(&t1, NULL);
     elapsed = (t1.tv_sec - t0.tv_sec) * 1000000 + t1.tv_usec - t0.tv_usec;
+    gl_elapsed += elapsed;
 
     // get result
     uint16_t *bf16_ref = (uint16_t *)test_get_mg_mem_comp(&ctx, mg_R);
@@ -94,5 +98,7 @@ static int test_gemm_bf16(size_t M, size_t N, size_t K)
 
 int main()
 {
-    test_gemm_bf16(100, 100, 100);
+    for (int i = 0; i < 1000; i++) test_gemm_bf16(100, 100, 100);
+    double res = (double)gl_elapsed / (1000.0 * 1000.0); // convert to ms
+    printf("AVG: %lf\n", res);
 }
