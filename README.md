@@ -3,6 +3,8 @@
 
 This repo stores examples for [this article (Russian)](https://habr.com/ru/articles/880230/). I also started translating it into English, the first part is available on [medium](https://medium.com/@ret7020/licheerv-nano-ai-board-first-steps-d05e7999dd29). Also you can read article Russian version outside habr in md format [here](https://github.com/ret7020/LicheeRVNanoArticle).
 
+I am also working on a deeper adaptation of opencv mobile for LicheeRV Nano (including hardware acceleration on NPU). The work is carried out in a separate [repository](https://github.com/ret7020/CVI_HW_OpenCV).
+
 ## Repo structure
 
 - Interfaces
@@ -31,7 +33,7 @@ This repo stores examples for [this article (Russian)](https://habr.com/ru/artic
     - - [DQN](Projects/CustomModels/DQN)
 
 - Hardware accelerated
-    - []
+    - [CVI Math](Projects/CVIMath)
 
 - Other
     - [FreeRTOS](Projects/FreeRTOS)
