@@ -75,7 +75,7 @@ static int test_gemm_bf16(size_t M, size_t N, size_t K)
     // get result
     uint16_t *bf16_ref = (uint16_t *)test_get_mg_mem_comp(&ctx, mg_R);
 
-    printf("Time: %ld us\n", elapsed);
+    // printf("Time: %ld us\n", elapsed);
 
     // free
     test_free_mg_mem_comp(&ctx, mg_A);
@@ -98,7 +98,9 @@ static int test_gemm_bf16(size_t M, size_t N, size_t K)
 
 int main()
 {
-    for (int i = 0; i < 1000; i++) test_gemm_bf16(100, 100, 100);
-    double res = (double)gl_elapsed / (1000.0 * 1000.0); // convert to ms
-    printf("AVG: %lf\n", res);
+    for (int size = 50; size <= 500; size += 50){
+    	for (int i = 0; i < 1000; i++) test_gemm_bf16(size, size, size);
+    	double res = (double)gl_elapsed / (1000.0 * 1000.0); // convert to ms
+    	printf("Matrix %dx%d: %lf ms\n", size, size, res);
+    }
 }
