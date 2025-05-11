@@ -3,10 +3,14 @@
 #include <unistd.h>
 #include <zenoh-pico.h>
 
+typedef struct {
+    float x, y, z;
+    float roll, pitch, yaw;
+} tf_message;
+
 int main(void) {
     const char *keyexpr = "demo/example/zenoh-pico-pub";
     const char *value = "Publish from LicheeRV Nano!";
-    const int publish_count = 10;
 
     z_owned_config_t config;
     z_config_default(&config);
@@ -17,8 +21,7 @@ int main(void) {
         return -1;
     }
 
-    if (zp_start_read_task(z_loan_mut(session), NULL) < 0 ||
-        zp_start_lease_task(z_loan_mut(session), NULL) < 0) {
+    if (zp_start_read_task(z_loan_mut(session), NULL) < 0 || zp_start_lease_task(z_loan_mut(session), NULL) < 0) {
         printf("Failed to start Zenoh tasks.\n");
         z_drop(z_move(session));
         return -1;
@@ -36,17 +39,18 @@ int main(void) {
         z_drop(z_move(session));
         return -1;
     }
+    uint32_t i = 0;
 
-    for (int i = 0; i < publish_count; ++i) {
-        char buf[128];
-        snprintf(buf, sizeof(buf), "[%d] %s", i, value);
-        printf("Publishing: %s\n", buf);
+    tf_message message = {1, 1, 1, 0, 0, 0};
 
+    while (1) {
         z_owned_bytes_t payload;
-        z_bytes_copy_from_str(&payload, buf);
+        z_bytes_copy_from_buf(&payload, (const uint8_t *)&message, sizeof(message));
         z_publisher_put(z_loan(publisher), z_move(payload), NULL);
 
         z_sleep_s(1);
+
+        message.x += 0.01;
     }
 
     z_drop(z_move(publisher));
