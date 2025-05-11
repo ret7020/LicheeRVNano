@@ -21,7 +21,7 @@ I am also working on a deeper adaptation of opencv mobile for LicheeRV Nano (inc
     - [Stream CSI to MJPEG](Projects/MJPEGStream)
 
 - OTG Camera
-    - [Read USB camera](Projects/OTGCamera)
+    - [Read USB camera to OpenCV Mat](Projects/OTGCamera)
 
 - NN
     - [YoloV8](Projects/Yolov8)
@@ -31,14 +31,19 @@ I am also working on a deeper adaptation of opencv mobile for LicheeRV Nano (inc
     - [LLama](Projects/LLama)
     - [Custom models](Projects/CustomModels)
     - - [DQN](Projects/CustomModels/DQN)
+    - - [NanoTrack WIP](Projects/CustomModels/NanoTrack)
 
 - Hardware accelerated
     - [CVI Math](Projects/CVIMath)
+    - [IVE](Projects/CVIMath)
 
 - Other
     - [FreeRTOS](Projects/FreeRTOS)
     - [Docker](Projects/Docker)
     - [Hello world](Projects/HelloWorld)
+
+- Communication
+    - [Zenoh Pico](Projects/ZenohPico)
 
 ## Useful links
 - [Power usage tests](https://docs.google.com/document/d/1rqYGW91RLbdtiySxgSRCPxvIl0TrY_t7PZlEEJFMUWQ/edit?usp=sharing)
