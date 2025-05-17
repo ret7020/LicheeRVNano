@@ -2,7 +2,15 @@
 
 ## Demo
 
-Source code located in `main.c`
+Source code located in `main.c`. This is a simple C struct publisher with Zenoh Pico library. And there is an example of struct receiving with Zenoh Python on PC in `sub.py` file.
+
+Also for communication you need to run Zenoh router on PC (or some another device in your network). Simplest way is do use official docker image:
+
+```bash
+docker run --init --net host eclipse/zenoh:main
+```
+
+Then you can run built C pub on LicheeRV Nano and `sub.py` on PC.
 
 
 ## Compile so library
