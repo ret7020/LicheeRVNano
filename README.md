@@ -41,6 +41,7 @@ I am also working on a deeper adaptation of opencv mobile for LicheeRV Nano (inc
     - [FreeRTOS](Projects/FreeRTOS)
     - [Docker](Projects/Docker)
     - [Hello world](Projects/HelloWorld)
+    - [OS modification](Projects/CustomBuildOptimization)
 
 - Communication
     - [Zenoh Pico](Projects/ZenohPico)

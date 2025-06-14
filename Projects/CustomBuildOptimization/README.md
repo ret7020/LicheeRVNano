@@ -12,3 +12,16 @@ You can see detailed changes in packages using the diff command between my confi
 * Bluez
 * OpenCV
 * FFmpeg
+
+
+## Change available RAM in Linux
+
+By default, 105 Mb used for Multimedia Buffer (CSI cameras, DSI screens). So, if you don't use some of them you can increase this buffer memory size. So, you need to edit file: `./build/boards/sg200x/sg2002_licheervnano_sd/memmap.py`.
+
+Set:
+
+```python
+ION_SIZE = 20 * SIZE_1M # replace 20 Mb with desired size (default 105)
+```
+
+And then rebuild kernel. While kernel build it will generate file: `./build/output/sg2002_licheervnano_sd/cvi_board_memmap.h` with correct memory mapping.
